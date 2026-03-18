@@ -21,7 +21,6 @@ A Flask-based REST API for managing a gym system including members, subscription
 - Flask-SQLAlchemy
 - MySQL
 - PyMySQL
-- Flask-Migrate (optional)
 
 ---
 
