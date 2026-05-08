@@ -2,12 +2,16 @@ from flask import Blueprint, request, jsonify
 from models import Attendance
 from config import db
 from datetime import datetime
+from auth_decorator import require_roles, require_permissions
+
 
 attendance_bp = Blueprint('attendance_bp', __name__)
 
 
 #  GET all attendance records
 @attendance_bp.route('/attendance', methods=['GET'])
+@require_roles(["Admin", "Trainer"])
+@require_permissions(["view_attendance"])
 def get_attendance():
     records = Attendance.query.all()
     return jsonify([r.to_dict() for r in records]), 200
@@ -15,6 +19,8 @@ def get_attendance():
 
 #  POST attendance manually (optional use)
 @attendance_bp.route('/attendance', methods=['POST'])
+@require_roles(["Admin", "Trainer", "Member"])
+@require_permissions(["create_attendance"])
 def create_attendance():
     data = request.get_json()
 
@@ -32,6 +38,8 @@ def create_attendance():
 
 #  Check in (auto time)
 @attendance_bp.route('/attendance/checkin', methods=['POST'])
+@require_roles(["Admin", "Trainer", "Member"])
+@require_permissions(["create_attendance"])
 def check_in():
     data = request.get_json()
 
@@ -48,6 +56,8 @@ def check_in():
 
 #  Check out (auto time)
 @attendance_bp.route('/attendance/checkout/<int:id>', methods=['PUT'])
+@require_roles(["Admin", "Trainer", "Member"])
+@require_permissions(["update_attendance"])
 def check_out(id):
 
     attendance = Attendance.query.get_or_404(id)

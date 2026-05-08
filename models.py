@@ -179,3 +179,54 @@ class Attendance(db.Model):
             "check_in_time": self.check_in_time.isoformat(),
             "check_out_time": self.check_out_time.isoformat() if self.check_out_time else None
         }
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    user_id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+
+    roles = db.relationship('Role', secondary='user_roles', back_populates='users')
+
+    def to_dict(self):
+        return {
+            "user_id": self.user_id,
+            "username": self.username,
+            "email": self.email,
+            "roles": [role.name for role in self.roles],
+            "permissions": [perm.name for perm in self.permissions]
+        }
+    
+class Role(db.Model):
+    __tablename__ = 'roles'
+
+    role_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+
+    users = db.relationship('User', secondary='user_roles', back_populates='roles')
+    permissions = db.relationship('Permission', secondary='role_permissions', back_populates='roles')
+
+class Permission(db.Model):
+    __tablename__ = 'permissions'
+
+    permission_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+
+    roles = db.relationship('Role', secondary='role_permissions', back_populates='permissions')
+    
+
+class UserRole(db.Model):
+    __tablename__ = 'user_roles'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), primary_key=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.role_id'), primary_key=True)
+
+class RolePermission(db.Model):
+    __tablename__ = 'role_permissions'
+
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.role_id'), primary_key=True)
+    permission_id = db.Column(db.Integer, db.ForeignKey('permissions.permission_id'), primary_key=True)
+
+

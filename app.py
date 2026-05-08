@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from config import db, Config
 from routes.member_routes import members_bp
 from routes.trainer_routes import trainer_bp
@@ -13,6 +14,9 @@ from routes.attendance_routes import attendance_bp
 # Create Flask app
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Enable CORS for all routes
+CORS(app)
 
 # Initialize database
 db.init_app(app)
